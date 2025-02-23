@@ -50,6 +50,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(category);
   });
 
+  // Add new delete category endpoint
+  app.delete("/api/categories/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    try {
+      await storage.deleteCategory(id);
+      res.status(204).end();
+    } catch (error) {
+      if (error instanceof Error && error.message === "Category not found") {
+        res.status(404).json({ error: "Category not found" });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

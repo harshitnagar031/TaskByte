@@ -7,10 +7,11 @@ export interface IStorage {
   createTask(task: InsertTask): Promise<Task>;
   updateTask(id: number, task: Partial<InsertTask>): Promise<Task>;
   deleteTask(id: number): Promise<void>;
-  
+
   // Category operations
   getCategories(): Promise<Category[]>;
   createCategory(category: InsertCategory): Promise<Category>;
+  deleteCategory(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -68,6 +69,22 @@ export class MemStorage implements IStorage {
     const category: Category = { ...insertCategory, id };
     this.categories.set(id, category);
     return category;
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    const category = this.categories.get(id);
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
+    // Update all tasks that use this category to use "general" instead
+    for (const task of this.tasks.values()) {
+      if (task.category === category.name) {
+        await this.updateTask(task.id, { category: "general" });
+      }
+    }
+
+    this.categories.delete(id);
   }
 }
 
