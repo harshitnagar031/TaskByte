@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
 import { TaskCard } from "./task-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFilterStore } from "./task-filters";
 
 export function TaskList() {
+  const { selectedCategory } = useFilterStore();
   const { data: tasks, isLoading } = useQuery<Task[]>({
     queryKey: ["/api/tasks"],
   });
@@ -18,17 +20,23 @@ export function TaskList() {
     );
   }
 
-  if (!tasks?.length) {
+  const filteredTasks = tasks?.filter(task => 
+    !selectedCategory || task.category === selectedCategory
+  );
+
+  if (!filteredTasks?.length) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        No tasks yet. Create one to get started!
+        {selectedCategory 
+          ? `No tasks in ${selectedCategory} category` 
+          : "No tasks yet. Create one to get started!"}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {tasks.map((task) => (
+      {filteredTasks.map((task) => (
         <TaskCard key={task.id} task={task} />
       ))}
     </div>
