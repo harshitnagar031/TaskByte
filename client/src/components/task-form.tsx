@@ -58,9 +58,7 @@ export function CreateTaskButton() {
 
 function TaskForm() {
   const { toast } = useToast();
-  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
@@ -73,7 +71,7 @@ function TaskForm() {
       dueDate: null,
       priority: 1,
       status: "pending",
-      category: "general",
+      category: "",
       completed: false,
     },
   });
@@ -110,7 +108,6 @@ function TaskForm() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
       form.setValue("category", variables.name);
-      setIsCreatingCategory(false);
       setNewCategoryName("");
       toast({
         title: "Success",
@@ -127,6 +124,15 @@ function TaskForm() {
   });
 
   const handleCreateCategory = () => {
+    if (!newCategoryName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a category name",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const category = { name: newCategoryName, color: "#0066FF" };
     const parsed = insertCategorySchema.safeParse(category);
     if (!parsed.success) {
@@ -181,42 +187,46 @@ function TaskForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem 
-                      key={category.id} 
-                      value={category.name}
-                    >
-                      {category.name}
+              <div className="space-y-2">
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select or create a category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem 
+                        key={category.id} 
+                        value={category.name}
+                      >
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="new">
+                      Create New Category
                     </SelectItem>
-                  ))}
-                  <SelectItem value="new" onSelect={() => setIsCreatingCategory(true)}>
-                    Create New
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              {isCreatingCategory && (
-                <div className="mt-2 flex gap-2">
-                  <Input
-                    value={newCategoryName}
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                    placeholder="Enter category name"
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleCreateCategory}
-                    disabled={categoryMutation.isPending}
-                  >
-                    Add
-                  </Button>
-                </div>
-              )}
+                  </SelectContent>
+                </Select>
+                {field.value === "new" && (
+                  <div className="flex gap-2">
+                    <Input
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      placeholder="Enter new category name"
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleCreateCategory}
+                      disabled={categoryMutation.isPending}
+                      size="sm"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}
