@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { insertTaskSchema, type InsertTask, type Category } from "@shared/schema";
+import { insertTaskSchema, insertCategorySchema, type InsertTask, type Category, type InsertCategory } from "@shared/schema";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { CalendarIcon, Plus } from "lucide-react";
+import { useState } from "react";
 
 export function CreateTaskButton() {
   return (
@@ -57,6 +58,9 @@ export function CreateTaskButton() {
 
 function TaskForm() {
   const { toast } = useToast();
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
@@ -74,7 +78,7 @@ function TaskForm() {
     },
   });
 
-  const mutation = useMutation({
+  const taskMutation = useMutation({
     mutationFn: async (data: InsertTask) => {
       const formattedData = {
         ...data,
@@ -99,9 +103,46 @@ function TaskForm() {
     },
   });
 
+  const categoryMutation = useMutation({
+    mutationFn: async (data: InsertCategory) => {
+      await apiRequest("POST", "/api/categories", data);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      form.setValue("category", variables.name);
+      setIsCreatingCategory(false);
+      setNewCategoryName("");
+      toast({
+        title: "Success",
+        description: "Category created successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create category",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCreateCategory = () => {
+    const category = { name: newCategoryName, color: "#0066FF" };
+    const parsed = insertCategorySchema.safeParse(category);
+    if (!parsed.success) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid category name",
+        variant: "destructive",
+      });
+      return;
+    }
+    categoryMutation.mutate(parsed.data);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+      <form onSubmit={form.handleSubmit((data) => taskMutation.mutate(data))} className="space-y-4">
         <FormField
           control={form.control}
           name="title"
@@ -140,7 +181,7 @@ function TaskForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
@@ -155,8 +196,27 @@ function TaskForm() {
                       {category.name}
                     </SelectItem>
                   ))}
+                  <SelectItem value="new" onSelect={() => setIsCreatingCategory(true)}>
+                    Create New
+                  </SelectItem>
                 </SelectContent>
               </Select>
+              {isCreatingCategory && (
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Enter category name"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleCreateCategory}
+                    disabled={categoryMutation.isPending}
+                  >
+                    Add
+                  </Button>
+                </div>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -189,8 +249,8 @@ function TaskForm() {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={mutation.isPending}>
-          {mutation.isPending ? "Creating..." : "Create Task"}
+        <Button type="submit" className="w-full" disabled={taskMutation.isPending}>
+          {taskMutation.isPending ? "Creating..." : "Create Task"}
         </Button>
       </form>
     </Form>
