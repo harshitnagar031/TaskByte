@@ -12,7 +12,7 @@ function Navigation() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t py-2">
-      <div className="container mx-auto flex justify-around items-center">
+      <div className="container max-w-5xl mx-auto flex justify-around items-center">
         <Link href="/">
           <a className={`flex flex-col items-center gap-1 ${location === "/" ? "text-primary" : "text-muted-foreground"}`}>
             <ListTodo className="h-5 w-5" />
@@ -40,13 +40,13 @@ function Router() {
   return (
     <div className="min-h-screen bg-background pb-16">
       <header className="py-6 px-4 border-b">
-        <div className="container mx-auto flex justify-center items-center">
+        <div className="container max-w-5xl mx-auto flex justify-center items-center">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
             TaskByte
           </h1>
         </div>
       </header>
-      <main className="container mx-auto px-4">
+      <main className="container max-w-5xl mx-auto px-4">
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/calendar" component={CalendarView} />
