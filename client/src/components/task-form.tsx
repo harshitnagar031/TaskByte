@@ -34,7 +34,7 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon, Plus } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export function CreateTaskButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,44 +42,19 @@ export function CreateTaskButton() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 400,
-            damping: 17
-          }}
+        <Button 
+          size="icon"
+          className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
         >
-          <Button 
-            size="icon"
-            className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
-            onClick={() => setIsOpen(true)}
-          >
-            <Plus className="h-6 w-6 text-primary-foreground" />
-          </Button>
-        </motion.div>
+          <Plus className="h-6 w-6 text-primary-foreground" />
+        </Button>
       </DialogTrigger>
-      <AnimatePresence>
-        {isOpen && (
-          <DialogContent asChild forceMount>
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.98 }}
-              transition={{ 
-                duration: 0.3,
-                ease: [0.4, 0, 0.2, 1]
-              }}
-            >
-              <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
-              </DialogHeader>
-              <TaskForm onSuccess={() => setIsOpen(false)} />
-            </motion.div>
-          </DialogContent>
-        )}
-      </AnimatePresence>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create New Task</DialogTitle>
+        </DialogHeader>
+        <TaskForm onSuccess={() => setIsOpen(false)} />
+      </DialogContent>
     </Dialog>
   );
 }
@@ -293,14 +268,9 @@ function TaskForm({ onSuccess }: { onSuccess: () => void }) {
           )}
         />
 
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
-        >
-          <Button type="submit" className="w-full" disabled={taskMutation.isPending}>
-            {taskMutation.isPending ? "Creating..." : "Create Task"}
-          </Button>
-        </motion.div>
+        <Button type="submit" className="w-full" disabled={taskMutation.isPending}>
+          {taskMutation.isPending ? "Creating..." : "Create Task"}
+        </Button>
       </form>
     </Form>
   );
