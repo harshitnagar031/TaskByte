@@ -1,6 +1,5 @@
 import { TaskList } from "@/components/task-list";
 import { TaskFilters } from "@/components/task-filters";
-import { CreateTaskButton } from "@/components/task-form";
 
 export default function Home() {
   return (
@@ -9,7 +8,6 @@ export default function Home() {
         <TaskFilters />
         <TaskList />
       </div>
-      <CreateTaskButton />
     </div>
   );
 }
