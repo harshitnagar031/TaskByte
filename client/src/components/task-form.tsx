@@ -34,29 +34,49 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon, Plus } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function CreateTaskButton() {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          size="icon"
-          className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
-          <Plus className="h-6 w-6 text-primary-foreground" />
-        </Button>
+          <Button 
+            size="icon"
+            className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
+            onClick={() => setIsOpen(true)}
+          >
+            <Plus className="h-6 w-6 text-primary-foreground" />
+          </Button>
+        </motion.div>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create New Task</DialogTitle>
-        </DialogHeader>
-        <TaskForm />
-      </DialogContent>
+      <AnimatePresence>
+        {isOpen && (
+          <DialogContent asChild forceMount>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+            >
+              <DialogHeader>
+                <DialogTitle>Create New Task</DialogTitle>
+              </DialogHeader>
+              <TaskForm onSuccess={() => setIsOpen(false)} />
+            </motion.div>
+          </DialogContent>
+        )}
+      </AnimatePresence>
     </Dialog>
   );
 }
 
-function TaskForm() {
+function TaskForm({ onSuccess }: { onSuccess: () => void }) {
   const { toast } = useToast();
   const [newCategoryName, setNewCategoryName] = useState("");
   const { data: categories = [] } = useQuery<Category[]>({
@@ -91,6 +111,7 @@ function TaskForm() {
         title: "Success",
         description: "Task created successfully",
       });
+      onSuccess();
     },
     onError: (error) => {
       toast({
@@ -209,7 +230,12 @@ function TaskForm() {
                   </SelectContent>
                 </Select>
                 {field.value === "new" && (
-                  <div className="flex gap-2">
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex gap-2"
+                  >
                     <Input
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
@@ -224,7 +250,7 @@ function TaskForm() {
                     >
                       Add
                     </Button>
-                  </div>
+                  </motion.div>
                 )}
               </div>
               <FormMessage />
@@ -259,9 +285,14 @@ function TaskForm() {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={taskMutation.isPending}>
-          {taskMutation.isPending ? "Creating..." : "Create Task"}
-        </Button>
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+        >
+          <Button type="submit" className="w-full" disabled={taskMutation.isPending}>
+            {taskMutation.isPending ? "Creating..." : "Create Task"}
+          </Button>
+        </motion.div>
       </form>
     </Form>
   );
