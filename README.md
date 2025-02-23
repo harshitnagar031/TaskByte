@@ -2,7 +2,7 @@
 
 A modern task management application with advanced user experience, featuring dynamic task organization and intuitive interface design.
 
-![TaskByte Screenshot](./attached_assets/20250223_125009.png)
+![TaskByte Screenshot](./attached_assets/Screenshot_20250223-224134.Chrome.png)
 
 ## Features
 
