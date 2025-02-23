@@ -54,7 +54,8 @@ function TaskForm() {
     resolver: zodResolver(insertTaskSchema),
     defaultValues: {
       title: "",
-      description: "",
+      description: null,
+      dueDate: null,
       priority: 1,
       status: "pending",
       category: "general",
@@ -64,7 +65,11 @@ function TaskForm() {
 
   const mutation = useMutation({
     mutationFn: async (data: InsertTask) => {
-      await apiRequest("POST", "/api/tasks", data);
+      const formattedData = {
+        ...data,
+        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : null,
+      };
+      await apiRequest("POST", "/api/tasks", formattedData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tasks"] });
@@ -72,6 +77,13 @@ function TaskForm() {
       toast({
         title: "Success",
         description: "Task created successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create task",
+        variant: "destructive",
       });
     },
   });
@@ -128,7 +140,7 @@ function TaskForm() {
                   <Calendar
                     mode="single"
                     selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={field.onChange}
+                    onSelect={(date) => field.onChange(date?.toISOString() || null)}
                     initialFocus
                   />
                 </PopoverContent>

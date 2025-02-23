@@ -19,7 +19,10 @@ export const categories = pgTable("categories", {
   color: text("color").notNull(),
 });
 
-export const insertTaskSchema = createInsertSchema(tasks).pick({
+export const insertTaskSchema = createInsertSchema(tasks, {
+  description: z.string().nullable().optional(),
+  dueDate: z.string().nullable().optional(),
+}).pick({
   title: true,
   description: true,
   dueDate: true,
