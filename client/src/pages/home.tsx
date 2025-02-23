@@ -1,6 +1,5 @@
 import { TaskList } from "@/components/task-list";
 import { TaskFilters } from "@/components/task-filters";
-import { TaskStats } from "@/components/task-stats";
 import { CreateTaskButton } from "@/components/task-form";
 
 export default function Home() {
@@ -11,7 +10,6 @@ export default function Home() {
         <TaskList />
       </div>
       <div className="space-y-8">
-        <TaskStats />
         <CreateTaskButton />
       </div>
     </div>
