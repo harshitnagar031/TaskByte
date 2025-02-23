@@ -39,33 +39,34 @@ export function TaskCard({ task }: TaskCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.01 }}
       className="group"
     >
-      <Card className="p-4 transition-shadow hover:shadow-md">
-        <div className="flex items-start gap-4">
+      <Card className="p-6 transition-shadow hover:shadow-md border">
+        <div className="flex items-start gap-6">
           <Checkbox
             checked={task.completed}
             onCheckedChange={() => toggleMutation.mutate()}
             disabled={toggleMutation.isPending}
-            className="mt-1"
+            className="mt-1.5"
           />
           <div className="flex-1 min-w-0">
             <h3 
-              className={`font-medium truncate ${
+              className={`text-lg font-medium truncate ${
                 task.completed ? "line-through text-muted-foreground" : ""
               }`}
             >
               {task.title}
             </h3>
             {task.description && (
-              <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+              <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
                 {task.description}
               </p>
             )}
             {task.dueDate && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                Due: {format(new Date(task.dueDate), "PPP")}
+              <p className="mt-3 text-sm text-muted-foreground flex items-center">
+                <span className="font-medium">Due:</span>
+                <span className="ml-2">{format(new Date(task.dueDate), "PPP")}</span>
               </p>
             )}
           </div>
