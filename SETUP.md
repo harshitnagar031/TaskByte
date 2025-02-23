@@ -4,24 +4,32 @@
 
 1. Node.js (v18 or higher)
 2. PostgreSQL database
-3. npm or yarn package manager
+3. npm package manager
 
 ## Initial Setup
 
-1. Clone the repository and install dependencies:
+1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/taskbyte.git
 cd taskbyte
+```
+
+2. Install dependencies:
+```bash
 npm install
 ```
 
-2. Configure Environment Variables:
+3. Configure Environment Variables:
 Create a `.env` file in the root directory:
 ```env
+# Required - PostgreSQL database URL
 DATABASE_URL=postgresql://username:password@localhost:5432/taskbyte
+
+# Optional - Port configuration (defaults to 5000)
+PORT=5000
 ```
 
-3. Initialize the Database:
+4. Initialize the Database:
 ```bash
 # Create database tables
 npm run db:push
@@ -42,9 +50,11 @@ The application will be available at http://localhost:5000
 ├── client/                 # Frontend React application
 │   └── src/
 │       ├── components/     # React components
-│       ├── hooks/         # Custom React hooks
-│       ├── lib/           # Utility functions
-│       └── pages/         # Page components
+│       │   ├── ui/        # Reusable UI components
+│       │   ├── task-*.tsx # Task-related components
+│       │   └── category-form.tsx
+│       ├── pages/         # Page components
+│       └── App.tsx        # Main application component
 ├── server/                # Backend Express server
 │   ├── routes.ts         # API routes
 │   ├── storage.ts        # Database operations
@@ -99,12 +109,9 @@ The application uses two main tables:
    - Verify TypeScript types are correct
    - Check for missing environment variables
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to your fork
-5. Submit a pull request
+3. If encountering "Category not found" errors:
+   - Ensure the category exists in the database
+   - Check if the category ID is correct
+   - Verify that the category wasn't recently deleted
 
 For more detailed information, refer to the main README.md file.

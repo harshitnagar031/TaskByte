@@ -100,6 +100,11 @@ The application will be available at `http://localhost:5000`.
 - Track tasks by category
 - Visual progress indicators
 
+### Category Management
+- Create custom categories
+- Assign colors to categories
+- Delete categories (tasks will be moved to "general")
+
 ## API Endpoints
 
 ### Tasks
@@ -111,7 +116,7 @@ The application will be available at `http://localhost:5000`.
 ### Categories
 - `GET /api/categories` - Get all categories
 - `POST /api/categories` - Create a new category
-
+- `DELETE /api/categories/:id` - Delete a category
 
 ## Contributing
 
