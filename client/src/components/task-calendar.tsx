@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, isAfter, isBefore, startOfDay } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Task } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 
 export function TaskCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -23,12 +23,25 @@ export function TaskCalendar() {
     );
   });
 
+  const upcomingTasks = tasks
+    .filter(task => {
+      if (!task.dueDate) return false;
+      const taskDate = new Date(task.dueDate);
+      return isAfter(taskDate, startOfDay(new Date()));
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.dueDate!);
+      const dateB = new Date(b.dueDate!);
+      return isBefore(dateA, dateB) ? -1 : 1;
+    })
+    .slice(0, 2);
+
   return (
     <div className="space-y-6">
-      <Card className="p-6">
+      <Card className="p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-primary">
-            {selectedDate ? format(selectedDate, "MMMM yyyy") : "Calendar"}
+            {selectedDate ? format(selectedDate, "MMM, yyyy") : "Calendar"}
           </h2>
           <div className="flex gap-2">
             <Button
@@ -86,43 +99,59 @@ export function TaskCalendar() {
         />
       </Card>
 
-      {selectedDate && (
+      {selectedDate && filteredTasks.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-medium">
             Tasks for {format(selectedDate, "MMMM d, yyyy")}
           </h3>
-          {filteredTasks.length > 0 ? (
-            <div className="space-y-2">
-              {filteredTasks.map((task) => (
-                <Card key={task.id} className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <h4 className="font-medium">{task.title}</h4>
-                      {task.description && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {task.description}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(task.dueDate!), "h:mm a")}
-                        </span>
-                        {task.category && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                            {task.category}
-                          </span>
-                        )}
-                      </div>
+          <div className="space-y-2">
+            {filteredTasks.map((task) => (
+              <Card key={task.id} className="p-4 shadow-sm border-l-4" style={{ borderLeftColor: task.category === "Work" ? "#0066FF" : task.category === "Personal" ? "#FF6B6B" : "#00CC99" }}>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <h4 className="font-medium">{task.title}</h4>
+                    {task.description && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {task.description}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(task.dueDate!), "h:mm a")}
+                      </span>
                     </div>
                   </div>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card className="p-4 text-center text-muted-foreground">
-              No tasks scheduled for this date
-            </Card>
-          )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {upcomingTasks.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Upcoming Tasks
+          </h3>
+          <div className="space-y-2">
+            {upcomingTasks.map((task) => (
+              <Card key={task.id} className="p-4 shadow-sm border-l-4" style={{ borderLeftColor: task.category === "Work" ? "#0066FF" : task.category === "Personal" ? "#FF6B6B" : "#00CC99" }}>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <h4 className="font-medium">{task.title}</h4>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(task.dueDate!), "MMM d, h:mm a")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>
