@@ -5,22 +5,20 @@ import { Toaster } from "@/components/ui/toaster";
 import Home from "@/pages/home";
 import CalendarView from "@/pages/calendar-view";
 import MeView from "@/pages/me-view";
-import { ListTodo, Calendar, User, Plus } from "lucide-react";
-import { CreateTaskButton } from "@/components/task-form";
+import { ListTodo, Calendar, User } from "lucide-react";
 
 function Navigation() {
   const [location] = useLocation();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t py-2">
-      <div className="container mx-auto flex justify-around items-center relative">
+      <div className="container mx-auto flex justify-around items-center">
         <Link href="/">
           <a className={`flex flex-col items-center gap-1 ${location === "/" ? "text-primary" : "text-muted-foreground"}`}>
             <ListTodo className="h-5 w-5" />
             <span className="text-xs">Tasks</span>
           </a>
         </Link>
-        <CreateTaskButton />
         <Link href="/calendar">
           <a className={`flex flex-col items-center gap-1 ${location === "/calendar" ? "text-primary" : "text-muted-foreground"}`}>
             <Calendar className="h-5 w-5" />
