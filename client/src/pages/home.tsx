@@ -12,8 +12,8 @@ export default function Home() {
       </div>
       <div className="space-y-8">
         <TaskStats />
+        <CreateTaskButton />
       </div>
-      <CreateTaskButton />
     </div>
   );
 }
