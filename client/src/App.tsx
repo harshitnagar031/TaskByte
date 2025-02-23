@@ -39,8 +39,12 @@ function Navigation() {
 function Router() {
   return (
     <div className="min-h-screen bg-background pb-16">
-      <header className="py-4 px-4">
-        <h1 className="text-2xl font-bold text-primary">TaskByte</h1>
+      <header className="py-6 px-4 border-b">
+        <div className="container mx-auto flex justify-center items-center">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            TaskByte
+          </h1>
+        </div>
       </header>
       <main className="container mx-auto px-4">
         <Switch>
