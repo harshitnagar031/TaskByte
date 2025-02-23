@@ -1,6 +1,4 @@
 import { tasks, categories, type Task, type InsertTask, type Category, type InsertCategory } from "@shared/schema";
-import { db } from "./db";
-import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Task operations
@@ -16,75 +14,78 @@ export interface IStorage {
   deleteCategory(id: number): Promise<void>;
 }
 
-export class DatabaseStorage implements IStorage {
+export class MemStorage implements IStorage {
+  private tasks: Map<number, Task>;
+  private categories: Map<number, Category>;
+  private taskId: number;
+  private categoryId: number;
+
+  constructor() {
+    this.tasks = new Map();
+    this.categories = new Map();
+    this.taskId = 1;
+    this.categoryId = 1;
+
+    // Add default categories
+    this.createCategory({ name: "Work", color: "#0066FF" });
+    this.createCategory({ name: "Personal", color: "#FF6B6B" });
+    this.createCategory({ name: "Shopping", color: "#00CC99" });
+  }
+
   async getTasks(): Promise<Task[]> {
-    return await db.select().from(tasks);
+    return Array.from(this.tasks.values());
   }
 
   async getTask(id: number): Promise<Task | undefined> {
-    const [task] = await db.select().from(tasks).where(eq(tasks.id, id));
-    return task;
+    return this.tasks.get(id);
   }
 
   async createTask(insertTask: InsertTask): Promise<Task> {
-    const [task] = await db
-      .insert(tasks)
-      .values({
-        ...insertTask,
-        dueDate: insertTask.dueDate ? new Date(insertTask.dueDate) : null,
-      })
-      .returning();
+    const id = this.taskId++;
+    const task: Task = { ...insertTask, id };
+    this.tasks.set(id, task);
     return task;
   }
 
   async updateTask(id: number, updates: Partial<InsertTask>): Promise<Task> {
-    const [task] = await db
-      .update(tasks)
-      .set({
-        ...updates,
-        dueDate: updates.dueDate ? new Date(updates.dueDate) : undefined,
-      })
-      .where(eq(tasks.id, id))
-      .returning();
+    const task = this.tasks.get(id);
     if (!task) throw new Error("Task not found");
-    return task;
+    
+    const updatedTask = { ...task, ...updates };
+    this.tasks.set(id, updatedTask);
+    return updatedTask;
   }
 
   async deleteTask(id: number): Promise<void> {
-    await db.delete(tasks).where(eq(tasks.id, id));
+    this.tasks.delete(id);
   }
 
   async getCategories(): Promise<Category[]> {
-    return await db.select().from(categories);
+    return Array.from(this.categories.values());
   }
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
-    const [category] = await db
-      .insert(categories)
-      .values(insertCategory)
-      .returning();
+    const id = this.categoryId++;
+    const category: Category = { ...insertCategory, id };
+    this.categories.set(id, category);
     return category;
   }
 
   async deleteCategory(id: number): Promise<void> {
-    const [category] = await db
-      .select()
-      .from(categories)
-      .where(eq(categories.id, id));
-
+    const category = this.categories.get(id);
     if (!category) {
       throw new Error("Category not found");
     }
 
-    // First update all tasks in this category to use "general"
-    await db
-      .update(tasks)
-      .set({ category: "general" })
-      .where(eq(tasks.category, category.name));
+    // Update all tasks that use this category to use "general" instead
+    for (const task of this.tasks.values()) {
+      if (task.category === category.name) {
+        await this.updateTask(task.id, { category: "general" });
+      }
+    }
 
-    // Then delete the category
-    await db.delete(categories).where(eq(categories.id, id));
+    this.categories.delete(id);
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = new MemStorage();
