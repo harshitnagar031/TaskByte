@@ -40,10 +40,10 @@ export function CreateTaskButton() {
     <Dialog>
       <DialogTrigger asChild>
         <Button 
-          className="w-full h-12 bg-primary hover:bg-primary/90 rounded-lg shadow-md"
+          size="icon"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
         >
-          <Plus className="h-5 w-5 mr-2 text-primary-foreground" />
-          New Task
+          <Plus className="h-6 w-6 text-primary-foreground" />
         </Button>
       </DialogTrigger>
       <DialogContent>
