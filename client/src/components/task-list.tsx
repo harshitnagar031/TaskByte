@@ -3,6 +3,7 @@ import { Task } from "@shared/schema";
 import { TaskCard } from "./task-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFilterStore } from "./task-filters";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function TaskList() {
   const { selectedCategory } = useFilterStore();
@@ -14,7 +15,9 @@ export function TaskList() {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-24 w-full" />
+          <div key={i} className="animate-pulse">
+            <Skeleton className="h-24 w-full bg-card/50 backdrop-blur-sm" />
+          </div>
         ))}
       </div>
     );
@@ -26,19 +29,36 @@ export function TaskList() {
 
   if (!filteredTasks?.length) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        {selectedCategory 
-          ? `No tasks in ${selectedCategory} category` 
-          : "No tasks yet. Create one to get started!"}
-      </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center py-12 px-4 rounded-lg bg-card/50 backdrop-blur-sm border shadow-sm"
+      >
+        <div className="text-4xl mb-4">📝</div>
+        <p className="text-lg font-medium text-foreground/80">
+          {selectedCategory 
+            ? `No tasks in ${selectedCategory} category` 
+            : "No tasks yet. Create one to get started!"}
+        </p>
+      </motion.div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {filteredTasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
-      ))}
+      <AnimatePresence>
+        {filteredTasks.map((task) => (
+          <motion.div
+            key={task.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <TaskCard task={task} />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

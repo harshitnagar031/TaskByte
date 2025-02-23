@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Clock, CalendarDays } from "lucide-react";
 
 interface TaskCardProps {
   task: Task;
@@ -58,9 +58,10 @@ export function TaskCard({ task }: TaskCardProps) {
               </p>
             )}
             {task.dueDate && (
-              <p className="mt-2 text-xs text-muted-foreground/70 font-medium">
-                Due: {format(new Date(task.dueDate), "PPP")}
-              </p>
+              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground/70">
+                <CalendarDays className="h-3 w-3" />
+                <span>{format(new Date(task.dueDate), "PPP")}</span>
+              </div>
             )}
           </div>
           <Button
