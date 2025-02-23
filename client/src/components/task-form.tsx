@@ -44,12 +44,12 @@ export function CreateTaskButton() {
       <DialogTrigger asChild>
         <Button 
           size="icon"
-          className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
+          className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-xl bg-gradient-to-tr from-primary to-primary/90 hover:shadow-primary/25 transition-all duration-300 hover:-translate-y-1 z-50"
         >
           <Plus className="h-6 w-6 text-primary-foreground" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>

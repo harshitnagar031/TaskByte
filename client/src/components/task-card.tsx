@@ -33,34 +33,46 @@ export function TaskCard({ task }: TaskCardProps) {
   });
 
   return (
-    <Card className="p-4">
-      <div className="flex items-start gap-4">
-        <Checkbox
-          checked={task.completed}
-          onCheckedChange={() => toggleMutation.mutate()}
-          disabled={toggleMutation.isPending}
-        />
-        <div className="flex-1">
-          <h3 className={`font-medium ${task.completed ? "line-through text-muted-foreground" : ""}`}>
-            {task.title}
-          </h3>
-          {task.description && (
-            <p className="mt-1 text-sm text-muted-foreground">{task.description}</p>
-          )}
-          {task.dueDate && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Due: {format(new Date(task.dueDate), "PPP")}
-            </p>
-          )}
+    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 border-l-primary/20 hover:border-l-primary">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="p-4 relative">
+        <div className="flex items-start gap-4">
+          <div className="mt-1">
+            <Checkbox
+              checked={task.completed}
+              onCheckedChange={() => toggleMutation.mutate()}
+              disabled={toggleMutation.isPending}
+              className="transition-transform duration-200 hover:scale-110"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 
+              className={`font-medium truncate transition-colors duration-200 
+                ${task.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
+            >
+              {task.title}
+            </h3>
+            {task.description && (
+              <p className="mt-1 text-sm text-muted-foreground/80 line-clamp-2">
+                {task.description}
+              </p>
+            )}
+            {task.dueDate && (
+              <p className="mt-2 text-xs text-muted-foreground/70 font-medium">
+                Due: {format(new Date(task.dueDate), "PPP")}
+              </p>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => deleteMutation.mutate()}
+            disabled={deleteMutation.isPending}
+            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => deleteMutation.mutate()}
-          disabled={deleteMutation.isPending}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
       </div>
     </Card>
   );
